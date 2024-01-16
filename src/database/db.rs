@@ -59,6 +59,26 @@ impl DB {
         }
     }
 
+    pub async fn put_task(&self, task: Task) -> Result<(), DatabaseError> {
+        println!("{}", &self.table_name);
+        let mut request = self.client.put_item()
+            .table_name(&self.table_name)
+            .item("pK", AttributeValue::S(String::from(task.task_id)))
+            .item("sK", AttributeValue::S(String::from(task.user_id)))
+            .item("title", AttributeValue::S(String::from(task.title)))
+            .item("description", AttributeValue::S(String::from(task.description)))
+            .item("status", AttributeValue::S(task.status.to_string()));
+
+
+        match request.send().await {
+            Ok(_) => Ok(()),
+            Err(x) => {
+                println!("{:?}", x);
+                Err(DatabaseError)
+            }
+        }
+    }
+
 
 
     pub async fn get_task(&self, id: String) -> Option<Task> {
@@ -68,18 +88,17 @@ impl DB {
             .collect();
         let user_uuid = AttributeValue::S(tokens[0].clone());
         let task_uuid = AttributeValue::S(tokens[1].clone());
+        println!("{},{}", tokens[0].clone(), tokens[1].clone());
 
         let res = self.client
             .query()
             .table_name(&self.table_name)
-            .key_condition_expression("#pK = :user_id and #sK = :task_uuid")
+            .key_condition_expression("#pK = :task_uuid")
             .expression_attribute_names("#pK", "pK")
-            .expression_attribute_names("#sK", "sK")
-            .expression_attribute_values(":user_id", user_uuid)
             .expression_attribute_values(":task_uuid", task_uuid)
             .send()
             .await;
-
+        println!("Query Request: {:?}", res);
         return match res {
             Ok(output) => {
                 match output.items {

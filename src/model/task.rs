@@ -33,6 +33,10 @@ impl Task {
         format!("{}_{}", self.user_id, self.task_id)
     }
 
+    pub fn can_transition_to(&self, status: &TaskStatus) -> bool {
+        self.status != *status
+    }
+
 
 
 
