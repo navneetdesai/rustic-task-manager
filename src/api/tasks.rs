@@ -5,7 +5,6 @@ use actix_web::http::StatusCode;
 use actix_web::web::Data;
 use serde::{Deserialize, Serialize};
 use derive_more::{Display};
-use log::log;
 use crate::model::task::{Task, TaskStatus};
 use crate::database::db::DB;
 
@@ -93,7 +92,7 @@ pub async fn start_task(
 }
 
 
-#[put("/task/{task_global_id}/cancel")]
+#[put("/task/{task_id}/cancel")]
 pub async fn fail_task(
     ddb_repo: Data<DB>,
     task_identifier: Path<TaskIdentifier>
@@ -105,7 +104,7 @@ pub async fn fail_task(
     ).await
 }
 
-#[put("/task/{task_global_id}/complete")]
+#[put("/task/{task_id}/complete")]
 pub async fn complete_task(
     ddb_repo: Data<DB>,
     task_identifier: Path<TaskIdentifier>,
@@ -122,6 +121,7 @@ async fn change_state(
     task_global_id: String,
     new_status: TaskStatus,
 ) -> Result<Json<TaskIdentifier>, Error> {
+    println!("task_global_id: {}", task_global_id);
     let mut task = match ddb_repo.get_task(
         task_global_id
     ).await {
@@ -136,6 +136,8 @@ async fn change_state(
     task.status = new_status;
 
     let task_identifier = task.get_id();
+    println!("task_id: {}, user_id: {}", task.task_id, task.user_id);
+
     match ddb_repo.put_task(task).await {
         Ok(()) => Ok(Json(TaskIdentifier { task_id: task_identifier })),
         Err(_) => Err(Error::DatabaseError)

@@ -42,8 +42,8 @@ fn item_to_task(item: &HashMap<String, AttributeValue>) -> Result<Task, Database
     let description = item_value("description", item).expect("Failed to get description");
 
     Ok(Task {
-        user_id: required_item_value("pK", item)?,
-        task_id: required_item_value("sK", item)?,
+        user_id: required_item_value("sK", item)?,
+        task_id: required_item_value("pK", item)?,
         title: required_item_value("title", item)?,
         description: description.unwrap_or(String::from("")),
         status,
@@ -61,6 +61,7 @@ impl DB {
 
     pub async fn put_task(&self, task: Task) -> Result<(), DatabaseError> {
         println!("{}", &self.table_name);
+        println!("{}", task.task_id);
         let mut request = self.client.put_item()
             .table_name(&self.table_name)
             .item("pK", AttributeValue::S(String::from(task.task_id)))
