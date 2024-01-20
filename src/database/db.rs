@@ -23,10 +23,7 @@ pub struct DatabaseError;
 /// Fetch the value of a key from a HashMap
 /// If the key is not present, return DatabaseError.
 ///
-fn get_value(
-    key: &str,
-    item: &HashMap<String, AttributeValue>,
-) -> Result<String, DatabaseError> {
+fn get_value(key: &str, item: &HashMap<String, AttributeValue>) -> Result<String, DatabaseError> {
     match extract_value(key, item) {
         Ok(Some(value)) => Ok(value),
         Ok(None) | Err(DatabaseError) => Err(DatabaseError),
@@ -49,18 +46,15 @@ fn extract_value(
     }
 }
 
-
 ///
 /// Create a task from entries in the hashmap
 fn create_task_from_entry(item: &HashMap<String, AttributeValue>) -> Result<Task, DatabaseError> {
-    let status: TaskStatus =
-        match TaskStatus::from_str(get_value("status", item)?.as_str()) {
-            Ok(value) => value,
-            Err(_) => return Err(DatabaseError),
-        };
+    let status: TaskStatus = match TaskStatus::from_str(get_value("status", item)?.as_str()) {
+        Ok(value) => value,
+        Err(_) => return Err(DatabaseError),
+    };
 
-    let description = extract_value("description", item)
-        .expect("Failed to get description");
+    let description = extract_value("description", item).expect("Failed to get description");
 
     Ok(Task {
         user_id: get_value("sK", item)?,
@@ -103,7 +97,6 @@ impl DB {
             }
         }
     }
-
 
     /// Fetches a task from dynamodb
     pub async fn get_task(&self, id: String) -> Option<Task> {

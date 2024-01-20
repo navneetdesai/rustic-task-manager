@@ -16,7 +16,6 @@ pub enum TaskStatus {
     Cancelled,
 }
 
-
 /// Task is a struct that represents a task.
 /// A task has the following fields:
 /// user_id: The id of the user that owns the task.

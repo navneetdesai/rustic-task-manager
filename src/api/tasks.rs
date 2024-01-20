@@ -155,7 +155,10 @@ async fn change_state(
     task_global_id: String,
     new_status: TaskStatus,
 ) -> Result<Json<TaskIdentifier>, Error> {
-    let mut task = ddb_repo.get_task(task_global_id).await.ok_or(Error::NotFound)?;
+    let mut task = ddb_repo
+        .get_task(task_global_id)
+        .await
+        .ok_or(Error::NotFound)?;
 
     if !task.can_transition_to(&new_status) {
         return Err(Error::BadRequest);
@@ -163,7 +166,10 @@ async fn change_state(
 
     task.status = new_status;
     let task_identifier = task.get_id();
-    ddb_repo.put_task(task).await.map_err(|_| Error::DatabaseError)?;
+    ddb_repo
+        .put_task(task)
+        .await
+        .map_err(|_| Error::DatabaseError)?;
     Ok(Json(TaskIdentifier {
         task_id: task_identifier,
     }))

@@ -9,8 +9,7 @@ use api::tasks::get_tasks;
 use database::db::DB;
 use dotenv::dotenv;
 
-
-const LOCAL_HOST: &str = "127.0.0.1";   // setup local host and port
+const LOCAL_HOST: &str = "127.0.0.1"; // setup local host and port
 const LOCAL_PORT: u16 = 8080;
 
 /// Setup the environment logger
@@ -24,12 +23,11 @@ fn setup_env_logger() {
     env_logger::init();
 }
 
-
 /// Main function
 ///
 /// Sets up the environment logger, loads the .env file, and
 /// creates the HTTP server
-/// 
+///
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     setup_env_logger();
